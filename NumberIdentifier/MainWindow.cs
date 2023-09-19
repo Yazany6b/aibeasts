@@ -133,7 +133,7 @@ namespace NumberIdentifier
                 label2.Text = "Learning ...";
             }));
 
-            network.SGD(training, epocs, (int)txtBatchSize.Value, (double) txtEta.Value, test);
+            network.SGD(training, epocs, (int)txtBatchSize.Value, (double) txtEta.Value, chkUseTestData.Checked ?  test : null);
 
             this.Invoke(new Action(() =>
             {

@@ -45,7 +45,13 @@ namespace NumberIdentifier
                 {
                     for (int j = 0; j < weight.GetLength(1); j++)
                     {
-                        weight[i, j] = rand.NextDouble();
+
+                        double u1 = 1.0 - rand.NextDouble(); // Uniform random variable in (0, 1]
+                        double u2 = 1.0 - rand.NextDouble();
+                        double z1 = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
+
+
+                        weight[i, j] = z1;
                     }
                 }
             }
@@ -54,7 +60,11 @@ namespace NumberIdentifier
             {
                 for (int i = 0; i < bias.GetLength(0); i++)
                 {
-                    bias[i, 0] = rand.NextDouble();
+                    double u1 = 1.0 - rand.NextDouble(); // Uniform random variable in (0, 1]
+                    double u2 = 1.0 - rand.NextDouble();
+                    double z1 = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
+
+                    bias[i, 0] = z1;
                 }
             }
         }
@@ -100,9 +110,13 @@ namespace NumberIdentifier
                 trainingData = Shuffle(trainingData);
                 var miniBatches = SplitIntoMiniBatches(trainingData, miniBatchSize);
 
+                int batchIndex = 0;
                 foreach (var miniBatch in miniBatches)
                 {
                     UpdateMiniBatch(miniBatch, eta);
+                    batchIndex++;
+
+                    this.statusChange(j, epochs, $"Learning Epoch {j}, Batch {batchIndex}/{miniBatches.Count}");
                 }
 
                 if (testData != null)
@@ -147,9 +161,12 @@ namespace NumberIdentifier
             {
                 var x = tuple.Item1;
                 var y = tuple.Item2;
-                var deltaNablaB = new List<double[,]>(nablaB);
-                var deltaNablaW = new List<double[,]>(nablaW);
-                Backprop(x, y, ref deltaNablaB, ref deltaNablaW);
+
+                var result = Backprop(x, y);
+
+                var deltaNablaB = result.Item1;
+                var deltaNablaW = result.Item2;
+
                 nablaB = nablaB.Zip(deltaNablaB, (nb, dnb) => MatrixAddition(nb, dnb)).ToList();
                 nablaW = nablaW.Zip(deltaNablaW, (nw, dnw) => MatrixAddition(nw, dnw)).ToList();
             }
@@ -159,10 +176,10 @@ namespace NumberIdentifier
             biases = biases.Zip(nablaB, (b, nb) => MatrixSubtraction(b, MatrixScalarMultiply((eta / miniBatchCount), nb))).ToList();
         }
 
-        private void Backprop(double[,] x, double[,] y, ref List<double[,]> nablaB, ref List<double[,]> nablaW)
+        private Tuple<List<double[,]>, List<double[,]>> Backprop(double[,] x, double[,] y)
         {
-            List<double[,]> deltaNablaB = biases.Select(b => new double[b.GetLength(0), b.GetLength(1)]).ToList();
-            List<double[,]> deltaNablaW = weights.Select(w => new double[w.GetLength(0), w.GetLength(1)]).ToList();
+            List<double[,]> nabla_b = biases.Select(b => new double[b.GetLength(0), b.GetLength(1)]).ToList();
+            List<double[,]> nabla_w = weights.Select(w => new double[w.GetLength(0), w.GetLength(1)]).ToList();
 
             //forward process
             double[,] activation = x;
@@ -173,32 +190,33 @@ namespace NumberIdentifier
             {
                 double[,] b = biases[i];
                 double[,] w = weights[i];
+
                 double[,] z = MatrixAddition(MatrixDotProduct(w, activation), b); //
+
                 zs.Add(z);
                 activation = ApplySigmoid(z);
                 activations.Add(activation);
             }
 
             double[,] delta = CostDerivative(activations.Last(), y);
-            deltaNablaB[deltaNablaB.Count - 1] = delta;
-            deltaNablaW[deltaNablaW.Count - 1] = MatrixDotProduct(delta, Transpose(activations[activations.Count - 2]));
+            nabla_b[nabla_b.Count - 1] = delta;
+            nabla_w[nabla_w.Count - 1] = MatrixDotProduct(delta, Transpose(activations[activations.Count - 2]));
 
             for (int l = 2; l < numLayers; l++)
             {
                 double[,] z = zs[zs.Count - l]; //represents the weighted input for the current hidden layer
                 double[,] sp = ApplySigmoidPrime(z); //represents the derivative of the sigmoid function applied to
 
-                double[,] mr = Transpose(weights[weights.Count - l + 1]);
-                double[,] mx1 = MatrixDotProduct(mr, delta); //calculates the product of the weight matrix of the next layer and the error delta from the previous layer.
+                double[,] mt = Transpose(weights[weights.Count - l + 1]); //Transposed weights
+                double[,] mx = MatrixDotProduct(mt, delta); //calculates the product of the weight matrix of the next layer and the error delta from the previous layer.
 
 
-                delta = MatrixMultiplication(mx1, sp);
-                deltaNablaB[deltaNablaB.Count - l] = delta;
-                deltaNablaW[deltaNablaW.Count - l] = MatrixDotProduct(delta, Transpose(activations[activations.Count - l - 1]));
+                delta = MatrixMultiplication(mx, sp);
+                nabla_b[nabla_b.Count - l] = delta;
+                nabla_w[nabla_w.Count - l] = MatrixDotProduct(delta, Transpose(activations[activations.Count - l - 1]));
             }
 
-            nablaB = nablaB.Zip(deltaNablaB, (nb, dnb) => MatrixAddition(nb, dnb)).ToList();
-            nablaW = nablaW.Zip(deltaNablaW, (nw, dnw) => MatrixAddition(nw, dnw)).ToList();
+            return new Tuple<List<double[,]>, List<double[,]>>(nabla_b, nabla_w);
         }
 
         private int Evaluate(List<Tuple<double[,], double[,]>> testData)

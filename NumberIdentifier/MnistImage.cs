@@ -38,7 +38,6 @@ namespace NumberIdentifier
         {
             MnistImage[] result = new MnistImage[numImages];
             byte[][] pixels = new byte[28][];
-            double[] layer = new double[28 * 28];
             for (int i = 0; i < pixels.Length; ++i)
                 pixels[i] = new byte[28];
             FileStream ifsPixels = new FileStream(pixelFile, FileMode.Open);
@@ -60,6 +59,8 @@ namespace NumberIdentifier
             for (int di = 0; di < numImages; ++di)
             {
                 int layerIndex = 0;
+                double[] layer = new double[28 * 28];
+
                 for (int i = 0; i < 28; ++i)
                 {
                     for (int j = 0; j < 28; ++j)
