@@ -42,6 +42,7 @@ namespace NumberIdentifier
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.chkUseTestData = new System.Windows.Forms.CheckBox();
             this.button3 = new System.Windows.Forms.Button();
             this.txtEta = new System.Windows.Forms.NumericUpDown();
             this.txtBatchSize = new System.Windows.Forms.NumericUpDown();
@@ -53,7 +54,11 @@ namespace NumberIdentifier
             this.label5 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.chkUseTestData = new System.Windows.Forms.CheckBox();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.button4 = new System.Windows.Forms.Button();
+            this.listView1 = new System.Windows.Forms.ListView();
+            this.label7 = new System.Windows.Forms.Label();
+            this.progressBar2 = new System.Windows.Forms.ProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxPaint)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
@@ -61,6 +66,7 @@ namespace NumberIdentifier
             ((System.ComponentModel.ISupportInitialize)(this.txtEta)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtBatchSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtEpocs)).BeginInit();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // printDialog1
@@ -198,10 +204,23 @@ namespace NumberIdentifier
             this.panel1.Controls.Add(this.txtLayers);
             this.panel1.Controls.Add(this.label5);
             this.panel1.Controls.Add(this.button2);
-            this.panel1.Location = new System.Drawing.Point(588, 13);
+            this.panel1.Location = new System.Drawing.Point(551, 13);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(371, 422);
             this.panel1.TabIndex = 11;
+            // 
+            // chkUseTestData
+            // 
+            this.chkUseTestData.AutoSize = true;
+            this.chkUseTestData.Checked = true;
+            this.chkUseTestData.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkUseTestData.ForeColor = System.Drawing.Color.Cyan;
+            this.chkUseTestData.Location = new System.Drawing.Point(25, 296);
+            this.chkUseTestData.Name = "chkUseTestData";
+            this.chkUseTestData.Size = new System.Drawing.Size(156, 21);
+            this.chkUseTestData.TabIndex = 13;
+            this.chkUseTestData.Text = "Train With Test Data";
+            this.chkUseTestData.UseVisualStyleBackColor = true;
             // 
             // button3
             // 
@@ -330,25 +349,69 @@ namespace NumberIdentifier
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
-            // chkUseTestData
+            // panel2
             // 
-            this.chkUseTestData.AutoSize = true;
-            this.chkUseTestData.Checked = true;
-            this.chkUseTestData.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkUseTestData.ForeColor = System.Drawing.Color.Cyan;
-            this.chkUseTestData.Location = new System.Drawing.Point(25, 296);
-            this.chkUseTestData.Name = "chkUseTestData";
-            this.chkUseTestData.Size = new System.Drawing.Size(195, 26);
-            this.chkUseTestData.TabIndex = 13;
-            this.chkUseTestData.Text = "Train With Test Data";
-            this.chkUseTestData.UseVisualStyleBackColor = true;
+            this.panel2.Controls.Add(this.listView1);
+            this.panel2.Controls.Add(this.button4);
+            this.panel2.Location = new System.Drawing.Point(928, 57);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(356, 378);
+            this.panel2.TabIndex = 13;
+            // 
+            // button4
+            // 
+            this.button4.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button4.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button4.ForeColor = System.Drawing.Color.White;
+            this.button4.Location = new System.Drawing.Point(4, 329);
+            this.button4.Margin = new System.Windows.Forms.Padding(4);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(348, 39);
+            this.button4.TabIndex = 25;
+            this.button4.Text = "Test All";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // listView1
+            // 
+            this.listView1.HideSelection = false;
+            this.listView1.LabelWrap = false;
+            this.listView1.Location = new System.Drawing.Point(4, 4);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(349, 317);
+            this.listView1.TabIndex = 26;
+            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.View = System.Windows.Forms.View.Tile;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.BackColor = System.Drawing.Color.Black;
+            this.label7.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.ForeColor = System.Drawing.Color.Coral;
+            this.label7.Location = new System.Drawing.Point(926, 38);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(45, 16);
+            this.label7.TabIndex = 14;
+            this.label7.Text = "label7";
+            // 
+            // progressBar2
+            // 
+            this.progressBar2.Location = new System.Drawing.Point(928, 13);
+            this.progressBar2.Name = "progressBar2";
+            this.progressBar2.Size = new System.Drawing.Size(363, 23);
+            this.progressBar2.TabIndex = 15;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(978, 445);
+            this.ClientSize = new System.Drawing.Size(1297, 445);
+            this.Controls.Add(this.progressBar2);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.panel2);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label4);
@@ -379,6 +442,7 @@ namespace NumberIdentifier
             ((System.ComponentModel.ISupportInitialize)(this.txtEta)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtBatchSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtEpocs)).EndInit();
+            this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -409,5 +473,10 @@ namespace NumberIdentifier
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.CheckBox chkUseTestData;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.ProgressBar progressBar2;
     }
 }

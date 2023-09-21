@@ -139,6 +139,7 @@ namespace NumberIdentifier
             {
                 this.UseWaitCursor = false;
                 this.panel1.Enabled = true;
+                this.panel2.Enabled = true;
                 MessageBox.Show("DONE");
 
                 try
@@ -311,6 +312,7 @@ namespace NumberIdentifier
             label4.Text = (DateTime.Now).ToString();
             this.UseWaitCursor = true;
             this.panel1.Enabled = false;
+            this.panel2.Enabled = false;
             (new Task(() =>
             {
                 this.startLearning();
@@ -348,6 +350,73 @@ namespace NumberIdentifier
 
             label2.Text = "Network Loaded :)";
             this.UseWaitCursor = false;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if(this.network == null)
+            {
+                MessageBox.Show("No network available please load one or train it.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            this.loadImages();
+
+            this.progressBar2.Value = 0;
+            this.progressBar2.Maximum = testImages.Length;
+            this.panel1.Enabled = false;
+            this.panel2.Enabled= false;
+
+            (new Task(() =>
+            {
+
+                int errors = 0;
+                for(int index = 0; index < testImages.Length; index++)
+                {
+
+                    MnistImage image = testImages[index];
+
+                  
+                    double[,] layer = new double[image.Layer.Length, 1];
+                    for (int i = 0; i < image.Layer.Length; i++)
+                    {
+                        layer[i, 0] = image.Layer[i] / divider;
+                    }
+
+                    var predict = network.FeedForward(layer);
+
+                    var predictedForward = predict.Cast<double>().ToArray();
+                    var predictedForwardMax = predict.Cast<double>().ToArray().Max();
+
+                    int result = Array.IndexOf(predictedForward, predictedForwardMax);
+                   
+                    this.Invoke(new Action(() =>
+                    {
+                        this.progressBar2.Value = index;
+                        label7.Text = $"Test {index+1}/{testImages.Length}";
+                        if(result != (int)image.label)
+                        {
+                            errors++;
+                            this.listView1.Items.Add(new ListViewItem($"@{index} Expected {image.label} Found {result}"));
+                        }
+                    }));
+                }
+
+                this.Invoke(new Action(() =>
+                {
+                    this.progressBar2.Value = this.progressBar2.Maximum;
+
+                    double ration = Math.Round((double)errors / (double)testImages.Length, 2);
+
+                    label7.Text = $"Err: {errors}, Suc: {testImages.Length - errors}, Err %: {ration}, Tot: {testImages.Length}";
+
+                    this.panel1.Enabled = true;
+                    this.panel2.Enabled = true;
+
+                    MessageBox.Show("Done Testing");
+                }));
+
+            })).Start();
         }
     }
 }
