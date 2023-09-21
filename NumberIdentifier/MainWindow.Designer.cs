@@ -212,8 +212,6 @@ namespace NumberIdentifier
             // chkUseTestData
             // 
             this.chkUseTestData.AutoSize = true;
-            this.chkUseTestData.Checked = true;
-            this.chkUseTestData.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkUseTestData.ForeColor = System.Drawing.Color.Cyan;
             this.chkUseTestData.Location = new System.Drawing.Point(25, 296);
             this.chkUseTestData.Name = "chkUseTestData";
