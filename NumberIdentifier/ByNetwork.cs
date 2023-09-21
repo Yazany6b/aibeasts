@@ -46,6 +46,7 @@ namespace NumberIdentifier
                     for (int j = 0; j < weight.GetLength(1); j++)
                     {
 
+                        //generates random numbers from a standard normal distribution (also known as a Gaussian distribution) with a mean of 0 and a standard deviation of 1.
                         double u1 = 1.0 - rand.NextDouble(); // Uniform random variable in (0, 1]
                         double u2 = 1.0 - rand.NextDouble();
                         double z1 = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
@@ -317,8 +318,8 @@ namespace NumberIdentifier
 
             if (cols1 != rows2)
             {
-                return null;
-               // throw new ArgumentException("Matrix dimensions are not compatible for multiplication.");
+               // return null;
+               throw new ArgumentException("Matrix dimensions are not compatible for multiplication.");
             }
 
             double[,] result = new double[rows1, cols2];
