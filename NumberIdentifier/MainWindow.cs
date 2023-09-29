@@ -49,7 +49,6 @@ namespace NumberIdentifier
         private void MainWindow_Load(object sender, EventArgs e)
         {
 
-
             graphics = pictureBoxPaint.CreateGraphics();
         }
 
@@ -214,21 +213,64 @@ namespace NumberIdentifier
             int k = 0;
             Bitmap map = new Bitmap(SIZE, SIZE);
             Graphics g = Graphics.FromImage(map);
+
+            int minX = SIZE;
+            int minY = SIZE;
+
+            int maxX = 0;
+            int maxY = 0;
+
             for (int i = 0; i < SIZE; i++)
             {
                 for (int j = 0; j < SIZE; j++)
                 {
-                    input[k, 0] = colors[j, i];
-                    if(colors[j, i] != 0) g.FillRectangle(Brushes.Black, new RectangleF(j, i, 1,1));
-                    k++;
+                    if(colors[j, i] != 0.0)
+                    {
+                        minX = Math.Min(minX, j);
+                        minY = Math.Min(minY, i);
+                        maxX = Math.Max(maxX, j);
+                        maxY = Math.Max(maxY, i);
+                    }
+
+                    if (colors[j, i] != 0)
+                    {
+                        int color = (int)(colors[j, i] * 255);
+                        g.FillRectangle(new SolidBrush(Color.FromArgb(color, color, color)), new RectangleF(j, i, 1, 1));
+                    }
+                   
                 }
             }
 
             graphics.Flush();
             g.Flush();
 
-            pictureBox1.Image = map;
+            Bitmap adjustedMap = new Bitmap(SIZE, SIZE);
+            Graphics adjustedG = Graphics.FromImage(adjustedMap);
+
+            adjustedG.DrawImage(map, SIZE/2 - (maxX - minX)/2, SIZE / 2 - (maxY - minY) / 2, new RectangleF(minX, minY, maxX - minX, maxY - minY), GraphicsUnit.Pixel);
+
+            Bitmap resizedMap = new Bitmap(SIZE, SIZE);
+            Graphics resizedG = Graphics.FromImage(resizedMap);
+
+            float adjustment = 2;
+            resizedG.DrawImage(adjustedMap,
+                new RectangleF(adjustment, adjustment, SIZE - (adjustment*2), SIZE - (adjustment * 2)), 
+                new RectangleF(0, 0, SIZE, SIZE), GraphicsUnit.Pixel);
+
+            pictureBox1.Image = resizedMap;
             pictureBox1.Refresh();
+
+            for (int i = 0; i < SIZE; i++)
+            {
+                for (int j = 0; j < SIZE; j++)
+                {
+                    Color c = resizedMap.GetPixel(j, i);
+
+                    float value = ((c.R/255f) + (c.B/255f) + (c.G/255f))/3.0f;
+                    input[k, 0] = value < 0.3f ? 0 : Math.Min(1f, value * 1.2f);
+                    k++;
+                }
+            }
 
             var predict = network.FeedForward(input);
 
@@ -241,9 +283,10 @@ namespace NumberIdentifier
 
         private void pictureBoxPaint_MouseMove(object sender, MouseEventArgs e)
         {
+            float pixelSize = 10f;
             if (mouse)
             {
-                int mx = ((int)(e.X / 10)), my = ((int)(e.Y / 10));
+                int mx = ((int)(e.X / pixelSize)), my = ((int)(e.Y / pixelSize));
                 for (int i = 0; i < SIZE; i++)
                 {
                     for (int j = 0; j < SIZE; j++)
@@ -256,7 +299,7 @@ namespace NumberIdentifier
                         if (colors[i, j] < 0.035) colors[i, j] = 0.0;
 
                         int color = (int)(colors[i, j] * 255);
-                        graphics.FillRectangle(new SolidBrush(Color.FromArgb(color, color, color)), i * 10, j * 10, 10, 10);
+                        graphics.FillRectangle(new SolidBrush(Color.FromArgb(color, color, color)), i * pixelSize, j * pixelSize, pixelSize, pixelSize);
                     }
                 }
             }
