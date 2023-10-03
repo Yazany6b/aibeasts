@@ -20,8 +20,19 @@ namespace NumberIdentifier
 
         public event NetworkStatusUpdate statusChange;
 
-        public ByNetwork(List<int> sizes)
+        public  ActivationFunction activationFunction;
+
+        public ByNetwork(List<int> sizes, ActivationFunction activationFunction = null)
         {
+            
+            if (activationFunction == null)
+            {
+                activationFunction = new SigmoidActivation();
+            }
+            else {                 this.activationFunction = activationFunction;
+                       
+            }
+            this.activationFunction = activationFunction;
             this.numLayers = sizes.Count;
             this.sizes = sizes;
             this.biases = sizes.GetRange(1, sizes.Count - 1).Select(y => new double[y, 1]).ToList();
@@ -92,7 +103,7 @@ namespace NumberIdentifier
 
                 a = ApplySigmoid(sum);*/
 
-                a = ApplySigmoid(MatrixAddition(MatrixDotProduct(w, a), b));
+                a = activationFunction.calculate(MatrixAddition(MatrixDotProduct(w, a), b));//ApplySigmoid(MatrixAddition(MatrixDotProduct(w, a), b));
             }
             return a;
         }
@@ -195,7 +206,7 @@ namespace NumberIdentifier
                 double[,] z = MatrixAddition(MatrixDotProduct(w, activation), b); //
 
                 zs.Add(z);
-                activation = ApplySigmoid(z);
+                activation = activationFunction.calculate(z);//ApplySigmoid(z);
                 activations.Add(activation);
             }
 
@@ -206,7 +217,7 @@ namespace NumberIdentifier
             for (int l = 2; l < numLayers; l++)
             {
                 double[,] z = zs[zs.Count - l]; //represents the weighted input for the current hidden layer
-                double[,] sp = ApplySigmoidPrime(z); //represents the derivative of the sigmoid function applied to
+                double[,] sp = activationFunction.calculatePrime(z);//ApplySigmoidPrime(z); //represents the derivative of the sigmoid function applied to
 
                 double[,] mt = Transpose(weights[weights.Count - l + 1]); //Transposed weights
                 double[,] mx = MatrixDotProduct(mt, delta); //calculates the product of the weight matrix of the next layer and the error delta from the previous layer.
@@ -411,12 +422,13 @@ namespace NumberIdentifier
 
 }
 
-interface ActivationFunction 
+public interface ActivationFunction 
 {
     double[,] calculate(double[,] matrix);
+    double[,] calculatePrime(double[,] matrix);
 }
 
-class SigmoidActivation : ActivationFunction
+public class SigmoidActivation : ActivationFunction
 {
    
     double[,] ActivationFunction.calculate(double[,] matrix)
@@ -439,10 +451,51 @@ class SigmoidActivation : ActivationFunction
     {
         return 1.0 / (1.0 + Math.Exp(-z));
     }
+
+    double[,] ActivationFunction.calculatePrime(double[,] matrix)
+    {
+        int rows = matrix.GetLength(0);
+        int cols = matrix.GetLength(1);
+        double[,] result = new double[rows, cols];
+
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                result[i, j] = SigmoidPrime(matrix[i, j]);
+            }
+        }
+
+        return result;
+    }
+
+    private double SigmoidPrime(double z)
+    {
+        return Sigmoid(z) * (1 - Sigmoid(z));
+    }
 }
 
-class ReLu : ActivationFunction
+public class ReLu : ActivationFunction
 {
+    public double[,] calculatePrime(double[,] matrix)
+    {
+        int rows = matrix.GetLength(0);
+        int cols = matrix.GetLength(1);
+        double[,] result = new double[rows, cols];
+
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                if (result[i, j] >= 0)
+                    result[i, j] = 1;
+                else
+                    result[i, j] = 0;
+            }
+        }
+
+        return result;
+    }
 
     double[,] ActivationFunction.calculate(double [,] matrix)
     {
@@ -454,7 +507,7 @@ class ReLu : ActivationFunction
         {
             for (int j = 0; j < cols; j++)
             {
-                if(result[i, j] < 0)
+                if(result[i, j] <= 0)
                 result[i, j] = 0;
             }
         }

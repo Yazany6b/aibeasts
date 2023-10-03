@@ -350,7 +350,7 @@ namespace NumberIdentifier
                 list.Add(int.Parse(split));
             }
             //784, 250, 100, 10
-            network = new ByNetwork(list);
+            network = new ByNetwork(list,new SigmoidActivation());
 
             label4.Text = (DateTime.Now).ToString();
             this.UseWaitCursor = true;
@@ -387,7 +387,7 @@ namespace NumberIdentifier
 
             loadImages();
 
-            network = new ByNetwork(obj.sizes);
+            network = new ByNetwork(obj.sizes, new SigmoidActivation());
             network.weights = obj.weights;
             network.biases = obj.biases;
 
