@@ -49,7 +49,7 @@ namespace NumberIdentifier
                         //generates random numbers from a standard normal distribution (also known as a Gaussian distribution) with a mean of 0 and a standard deviation of 1.
                         double u1 = 1.0 - rand.NextDouble(); // Uniform random variable in (0, 1]
                         double u2 = 1.0 - rand.NextDouble();
-                        double z1 = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
+                        double z1 = u1 * 2 - 1; //Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
 
 
                         weight[i, j] = z1;
@@ -63,7 +63,7 @@ namespace NumberIdentifier
                 {
                     double u1 = 1.0 - rand.NextDouble(); // Uniform random variable in (0, 1]
                     double u2 = 1.0 - rand.NextDouble();
-                    double z1 = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
+                    double z1 = u1 * 2 - 1;//Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
 
                     bias[i, 0] = z1;
                 }
@@ -408,5 +408,60 @@ namespace NumberIdentifier
             return result;
         }
     }
+
+}
+
+interface ActivationFunction 
+{
+    double[,] calculate(double[,] matrix);
+}
+
+class SigmoidActivation : ActivationFunction
+{
+   
+    double[,] ActivationFunction.calculate(double[,] matrix)
+    {
+        int rows = matrix.GetLength(0);
+        int cols = matrix.GetLength(1);
+        double[,] result = new double[rows, cols];
+
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                result[i, j] = Sigmoid(matrix[i, j]);
+            }
+        }
+
+        return result;
+    }
+    private double Sigmoid(double z)
+    {
+        return 1.0 / (1.0 + Math.Exp(-z));
+    }
+}
+
+class ReLu : ActivationFunction
+{
+
+    double[,] ActivationFunction.calculate(double [,] matrix)
+    {
+        int rows = matrix.GetLength(0);
+        int cols = matrix.GetLength(1);
+        double[,] result = new double[rows, cols];
+
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                if(result[i, j] < 0)
+                result[i, j] = 0;
+            }
+        }
+
+        return result;
+
+    }
+
 
 }
